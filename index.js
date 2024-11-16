@@ -73,14 +73,12 @@ app.get("/users", async (req, res) => {
 
 app.get("/health", async (req, res) => {
   try {
-    await User.findOne(); // Simple DB query to ensure DB is accessible
-    res.status(200).send("OK");
+    res.status(200).send("OK\n");
   } catch (err) {
     console.error("Health check failed:", err);
     res.status(500).send("Unhealthy");
   }
 });
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
