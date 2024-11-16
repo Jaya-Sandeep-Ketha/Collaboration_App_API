@@ -31,18 +31,15 @@ fs.readdirSync(__dirname)
     );
   })
   .forEach((file) => {
-    const model = require(path.join(__dirname, file))(
-      sequelize,
-      Sequelize.DataTypes
-    );
-    db[model.name] = model;
-  });
+    const model = require(path.join(__dirname, file));
 
-Object.keys(db).forEach((modelName) => {
-  if (db[modelName].associate) {
-    db[modelName].associate(db);
-  }
-});
+    // Check if the model is a function and call it
+    if (typeof model === 'function') {
+      db[model.name] = model(sequelize, Sequelize.DataTypes);
+    } else {
+      db[file] = model;
+    }
+  });
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
