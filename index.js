@@ -49,6 +49,9 @@ const sequelize = new Sequelize(
     await db.User.sync({ force: true }); // Then sync Admin table
     console.log("User table synchronized.");
 
+    await db.Work.sync({ force: true }); // Then sync Admin table
+    console.log("Work table synchronized.");
+
     console.log("Database synchronized.");
   } catch (err) {
     console.error("Unable to connect to the database or sync tables:", err);

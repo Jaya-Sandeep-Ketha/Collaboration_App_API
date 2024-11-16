@@ -1,5 +1,5 @@
 const csv = require("csv-parser");
-const { User, Project } = require("../models");
+const { User, Project, Work } = require("../models");
 const axios = require("axios"); // To fetch CSV from S3
 const sendPasswordEmail = require("./emailService");
 
@@ -55,6 +55,12 @@ exports.parseCSVAndSave = async (fileUrl, company_code) => {
                 company_code: company_code, // Use companyCode instead of companyName
                 project_id: project.project_id, // Optional: Linking to project if needed
                 password,
+              });
+
+              // Populate Work table
+              await Work.create({
+                employee_id: user.employee_id,
+                project_id: project.project_id,
               });
 
               // Send email with credentials

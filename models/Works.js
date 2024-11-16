@@ -8,17 +8,24 @@ module.exports = (sequelize, DataTypes) => {
     employee_id: {
       type: DataTypes.STRING,
       allowNull: false,
+      references: {
+        model: "Users", // Reference the Users table
+        key: "employee_id",
+      },
+      onUpdate: "CASCADE",
+      onDelete: "CASCADE",
     },
     project_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false,
+      references: {
+        model: "Project", // Reference the Projects table
+        key: "project_id",
+      },
+      onUpdate: "CASCADE",
+      onDelete: "CASCADE",
     },
   });
-
-  Work.associate = (models) => {
-    Work.belongsTo(models.User, { foreignKey: "employee_id" });
-    Work.belongsTo(models.Project, { foreignKey: "project_id" });
-  };
 
   return Work;
 };
