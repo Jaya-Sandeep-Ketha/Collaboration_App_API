@@ -1,4 +1,3 @@
-const express = require("express");
 require("dotenv").config();
 const { Sequelize } = require("sequelize");
 const db = require("./models"); // Ensure models/index.js exports all models
@@ -68,6 +67,7 @@ app.get("/health", async (req, res) => {
   }
 });
 
+// Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

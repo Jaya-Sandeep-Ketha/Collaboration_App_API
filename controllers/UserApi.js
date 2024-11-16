@@ -1,5 +1,10 @@
+ // Make sure to import the correct User model
+const Project = require('../models/Project');
+const Company = require('../models/Company');
+const Feature = require('../models/Feature');
 const db = require("../models");
 const bcrypt = require("bcrypt");
+
 
 exports.UserLogin = async (req, res) => {
   const { email, password } = req.body;
