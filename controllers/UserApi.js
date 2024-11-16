@@ -1,18 +1,20 @@
-const User = require('../models').User;
+const db = require('../models');
 const bcrypt = require('bcrypt');
 
-exports.UserLogin = async (req,res) => {
-    const {email_id,password} = req.body;
+exports.UserLogin = async (req, res) => {
+    const { email, password } = req.body;
 
-    if(!email_id || !password) {
-        return res.status(400).json({error: "Email or Password is missing"});
+    if (!email || !password) {
+        return res.status(400).json({ error: "Email or Password is missing" });
     }
 
     try {
-        const user = await User.findOne({ where: { email: email_id} });
-    
+        const user = await db.User.findOne({ 
+            where: { email: email }
+        });
+
         if (!user) {
-          return res.status(401).json({ error: 'Invalid email or password' });
+            return res.status(401).json({ error: 'Invalid email or password' });
         }
 
         const passwordMatch = await bcrypt.compare(password, user.password);
@@ -22,16 +24,11 @@ exports.UserLogin = async (req,res) => {
         }
     
         res.status(200).json({
-          status: 'OK',
-          data: {
-            username: user.name,
-            email: user.email,
-          },
+            status: 'OK',
+            data: user
         });
-      } catch (error) {
+    } catch (error) {
         console.error('Error fetching user:', error);
         res.status(500).json({ error: 'Internal server error' });
-      }
-
-}
-
+    }
+};

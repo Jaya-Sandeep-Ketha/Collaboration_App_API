@@ -1,83 +1,18 @@
 const express = require("express");
 require("dotenv").config();
-const { Sequelize, DataTypes } = require("sequelize");
+const db = require('./models');  // Import models
 const userRoute = require("./routes/userRoute");
 
 const app = express();
 app.use(express.json());
-app.use('/api',userRoute);
-
-const sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USERNAME,
-  process.env.DB_PASSWORD,
-  {
-    host: process.env.DB_HOST,
-    dialect: "postgres",
-    port: process.env.DB_PORT || 5432,
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false,
-      },
-    },
-  }
-);
-
-// Define the User model
-const User = sequelize.define("User", {
-    employee_id: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    employee_fname: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    employee_lname: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    chat_name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    location: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    title: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    reports_to: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    company_name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-  },
-  {
-    timestamps: true, // Adds createdAt and updatedAt
-  });
+app.use('/api', userRoute);
 
 // Test connection and sync database
-sequelize
+db.sequelize
   .authenticate()
   .then(() => {
     console.log("Connected to AWS RDS successfully.");
-    return sequelize.sync(); // Ensure tables exist
+    return db.sequelize.sync(); // Ensure tables exist
   })
   .then(() => console.log("Database synchronized."))
   .catch((err) => console.error("Unable to connect to the database:", err));
@@ -85,7 +20,7 @@ sequelize
 // Create a new user
 app.post("/users", async (req, res) => {
   try {
-    const user = await User.create(req.body); // Use the defined User model
+    const user = await db.User.create(req.body);
     res.status(201).json(user);
   } catch (err) {
     console.error(err);
@@ -96,7 +31,7 @@ app.post("/users", async (req, res) => {
 // Fetch all users
 app.get("/users", async (req, res) => {
   try {
-    const users = await User.findAll();
+    const users = await db.User.findAll();
     res.json(users);
   } catch (err) {
     console.error(err);
