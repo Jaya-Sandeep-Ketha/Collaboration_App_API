@@ -1,19 +1,58 @@
 const express = require("express");
-const db = require("./models"); // Ensure models are properly imported
+require("dotenv").config();
+const { Sequelize, DataTypes } = require("sequelize");
 
 const app = express();
 app.use(express.json());
 
-// Sync all models and ensure the table exists
-db.sequelize
-  .sync({ force: true }) // Use { force: true } to drop and recreate tables
+const sequelize = new Sequelize(
+  process.env.DB_NAME,
+  process.env.DB_USERNAME,
+  process.env.DB_PASSWORD,
+  {
+    host: process.env.DB_HOST,
+    dialect: "postgres",
+    port: process.env.DB_PORT || 5432,
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      },
+    },
+  }
+);
+
+// Define the User model
+const User = sequelize.define("User", {
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+});
+
+// Test connection and sync database
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log("Connected to AWS RDS successfully.");
+    return sequelize.sync(); // Ensure tables exist
+  })
   .then(() => console.log("Database synchronized."))
-  .catch((err) => console.error("Sync error:", err));
+  .catch((err) => console.error("Unable to connect to the database:", err));
 
 // Create a new user
 app.post("/users", async (req, res) => {
   try {
-    const user = await db.User.create(req.body); // Ensure db.User exists and is used correctly
+    const user = await User.create(req.body); // Use the defined User model
     res.status(201).json(user);
   } catch (err) {
     console.error(err);
@@ -24,7 +63,7 @@ app.post("/users", async (req, res) => {
 // Fetch all users
 app.get("/users", async (req, res) => {
   try {
-    const users = await db.User.findAll();
+    const users = await User.findAll();
     res.json(users);
   } catch (err) {
     console.error(err);
