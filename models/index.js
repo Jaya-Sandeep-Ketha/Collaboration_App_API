@@ -36,10 +36,10 @@ fs.readdirSync(__dirname)
       console.log(`Model loaded: `, {
         fileName: file,
         modelType: typeof model,
-        modelName: model.name || 'unnamed'
+        modelName: model.name || "unnamed",
       });
 
-      if (typeof model === 'function') {
+      if (typeof model === "function") {
         const initializedModel = model(sequelize, Sequelize.DataTypes);
         console.log(`Initialized model name: ${initializedModel.name}`);
         db[initializedModel.name] = initializedModel;
@@ -50,6 +50,13 @@ fs.readdirSync(__dirname)
       console.error(`Error loading model ${file}:`, error);
     }
   });
+
+// Add this block to initialize associations
+Object.keys(db).forEach((modelName) => {
+  if (db[modelName].associate) {
+    db[modelName].associate(db);
+  }
+});
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;

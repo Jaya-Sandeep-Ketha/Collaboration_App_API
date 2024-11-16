@@ -1,55 +1,53 @@
-const mongoose = require('mongoose');
-const { Schema } = mongoose;
+module.exports = (sequelize, DataTypes) => {
+  const User = sequelize.define(
+    "User",
+    {
+      employee_id: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        primaryKey: true,
+      },
+      employee_fname: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      employee_lname: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      chat_name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      location: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      title: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      reports_to: {
+        type: DataTypes.STRING, // Keep it as a simple field
+        allowNull: true, // Can be null if the user does not report to anyone
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: {
+          isEmail: true,
+        },
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+    },
+    {
+      timestamps: true, // Adds createdAt and updatedAt fields automatically
+    }
+  );
 
-// Define the Mongoose schema for User
-const userSchema = new Schema({
-  employee_id: {
-    type: String,
-    required: true,  // Equivalent to allowNull: false
-    unique: true,    // Ensures uniqueness
-  },
-  employee_fname: {
-    type: String,
-    required: true,
-  },
-  employee_lname: {
-    type: String,
-    required: true,
-  },
-  chat_name: {
-    type: String,
-    required: true,
-  },
-  location: {
-    type: String,
-    required: true,
-  },
-  title: {
-    type: String,
-    required: true,
-  },
-  reports_to: {
-    type: String,
-    required: true,
-  },
-  company_name: {
-    type: String,
-    required: true,
-    unique: true,  // Ensures uniqueness
-  },
-  email: {
-    type: String,
-    required: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-}, {
-  timestamps: true,  // Automatically adds createdAt and updatedAt
-});
-
-// Create the Mongoose model
-const User = mongoose.model('Users', userSchema);
-
-module.exports = User;
+  return User;
+};

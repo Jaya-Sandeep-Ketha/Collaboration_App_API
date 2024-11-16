@@ -1,30 +1,54 @@
-const mongoose = require('mongoose');
-const { Schema } = mongoose;
+module.exports = (sequelize, DataTypes) => {
+  const Project = sequelize.define(
+    "Project",
+    {
+      project_id: {
+        type: DataTypes.STRING, // User-defined project ID
+        allowNull: false,
+        primaryKey: true,
+      },
+      project_name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      github_repo_name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      company_code: {
+        type: DataTypes.STRING, // Match with the Companies table's company_code
+        allowNull: false,
+        references: {
+          model: "Companies", // Table name
+          key: "company_code", // Foreign key reference
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+      },
+    },
+    {
+      tableName: "Project",
+      indexes: [
+        {
+          unique: true,
+          fields: ["project_id", "company_code"], // Correct composite unique constraint
+          name: "unique_project_per_company",
+        },
+      ],
+    }
+  );
 
-// Define the Mongoose schema for Project
-const projectSchema = new Schema({
-  project_id: {
-    type: String,
-    required: true,
-  },
-  company_id: {
-    type: String,
-    required: true,
-  },
-  project_name: {
-    type: String,
-  },
-  github_repo_name: {
-    type: String,
-  },
-  project_api_key: {
-    type: String,
-  },
-}, {
-  timestamps: true,  // Automatically adds createdAt and updatedAt
-});
+  Project.associate = (models) => {
+    Project.belongsTo(models.Company, { foreignKey: "company_code" }); // Correct relation
+    Project.hasMany(models.Feature, {
+      foreignKey: "project_id",
+      onDelete: "CASCADE",
+    });
+    Project.hasMany(models.Work, {
+      foreignKey: "project_id",
+      onDelete: "CASCADE",
+    });
+  };
 
-// Create the Mongoose model
-const Project = mongoose.model('Project', projectSchema);
-
-module.exports = Project;
+  return Project;
+};

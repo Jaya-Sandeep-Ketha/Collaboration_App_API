@@ -1,25 +1,32 @@
-const mongoose = require('mongoose');
-
-const FeatureSchema = new mongoose.Schema({
+module.exports = (sequelize, DataTypes) => {
+  const Feature = sequelize.define("Feature", {
     feature_id: {
-        type: Number, // Equivalent to INTEGER in Sequelize
-        required: true,
-        unique: true,
-    },
-    project_id: {
-        type: String, // Equivalent to STRING in Sequelize
-        required: false,
-    },
-    employee_id: {
-        type: String, // Equivalent to STRING in Sequelize
-        required: false,
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
     },
     feature_name: {
-        type: String, // Equivalent to STRING in Sequelize
-        required: false,
-    }
-}, {
-    timestamps: true, // Adds createdAt and updatedAt fields
-});
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    project_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    employee_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    company_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+  });
 
-module.exports = mongoose.model('Feature', FeatureSchema);
+  Feature.associate = (models) => {
+    Feature.belongsTo(models.Project, { foreignKey: "project_id" });
+    Feature.belongsTo(models.Company, { foreignKey: "company_id" });
+  };
+
+  return Feature;
+};
