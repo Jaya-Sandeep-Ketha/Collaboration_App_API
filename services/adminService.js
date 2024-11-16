@@ -1,4 +1,5 @@
 const { Admin, Company } = require("../models");
+const jwt = require("jsonwebtoken");
 
 const generateCompanyCode = async (company_name, location) => {
   const baseCode =
@@ -53,4 +54,29 @@ const registerAdmin = async (adminData) => {
   return newAdmin.company_code;
 };
 
-module.exports = { registerAdmin };
+const adminLogin = async (emailId, password) => {
+  if (!emailId || !password) {
+    throw new Error("Email and password are required");
+  }
+
+  const admin = await Admin.findOne({ where: { emailId: emailId } });
+
+  if (!admin) {
+    throw new Error("Invalid email or password");
+  }
+
+  // Simulate password validation; replace with bcrypt for hashed passwords
+  if (admin.password !== password) {
+    throw new Error("Invalid email or password");
+  }
+
+  const token = jwt.sign(
+    { adminId: admin.id, company_code: admin.company_code },
+    process.env.JWT_SECRET,
+    { expiresIn: "1h" }
+  );
+
+  return { token, company_code: admin.company_code };
+};
+
+module.exports = { registerAdmin, adminLogin };

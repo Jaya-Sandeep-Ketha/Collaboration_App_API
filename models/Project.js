@@ -5,6 +5,7 @@ module.exports = (sequelize, DataTypes) => {
       project_id: {
         type: DataTypes.STRING, // User-defined project ID
         allowNull: false,
+        primaryKey: true,
       },
       project_name: {
         type: DataTypes.STRING,
@@ -14,26 +15,23 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      project_api_key: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      company_id: {
-        type: DataTypes.INTEGER,
+      company_code: {
+        type: DataTypes.STRING, // Match with the Companies table's company_code
         allowNull: false,
         references: {
-          model: "Companies",
-          key: "company_id",
+          model: "Companies", // Table name
+          key: "company_code", // Foreign key reference
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
     },
     {
+      tableName: "Project",
       indexes: [
         {
           unique: true,
-          fields: ["project_id", "company_id"], // Composite unique constraint
+          fields: ["project_id", "company_code"], // Correct composite unique constraint
           name: "unique_project_per_company",
         },
       ],
@@ -41,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Project.associate = (models) => {
-    Project.belongsTo(models.Company, { foreignKey: "company_id" });
+    Project.belongsTo(models.Company, { foreignKey: "company_code" }); // Correct relation
     Project.hasMany(models.Feature, {
       foreignKey: "project_id",
       onDelete: "CASCADE",

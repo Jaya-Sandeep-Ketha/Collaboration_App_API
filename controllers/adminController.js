@@ -1,4 +1,6 @@
 const adminService = require("../services/adminService");
+const { authenticateAdmin } = require("../middlewares/authMiddleware");
+const { adminLogin } = require("../services/adminService");
 
 const registerAdmin = async (req, res) => {
   try {
@@ -43,4 +45,20 @@ const registerAdmin = async (req, res) => {
   }
 };
 
-module.exports = { registerAdmin };
+const loginAdmin = async (req, res) => {
+  const { emailId, password } = req.body;
+
+  try {
+    const { token, company_code } = await adminLogin(emailId, password);
+    res.status(200).json({
+      message: "Login successful",
+      token,
+      company_code,
+    });
+  } catch (error) {
+    console.error("Login error:", error.message);
+    res.status(401).json({ message: error.message });
+  }
+};
+
+module.exports = { registerAdmin, loginAdmin };

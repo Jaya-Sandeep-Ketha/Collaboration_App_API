@@ -11,6 +11,7 @@ app.use(express.json());
 // Register routes
 app.use("/api/users", userRoute); // Example for user-related endpoints
 app.use("/api/admin", adminRoute); // Correctly register admin-related endpoints
+app.use("/api/csv", adminRoute);
 
 const sequelize = new Sequelize(
   process.env.DB_NAME,
@@ -41,6 +42,12 @@ const sequelize = new Sequelize(
 
     await db.Admin.sync({ force: true }); // Then sync Admin table
     console.log("Admin table synchronized.");
+
+    await db.Project.sync({ force: true }); // Then sync Admin table
+    console.log("Project table synchronized.");
+
+    await db.User.sync({ force: true }); // Then sync Admin table
+    console.log("User table synchronized.");
 
     console.log("Database synchronized.");
   } catch (err) {

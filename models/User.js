@@ -28,25 +28,15 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       reports_to: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING, // Keep it as a simple field
         allowNull: true, // Can be null if the user does not report to anyone
-        references: {
-          model: "Users", // References User model
-          key: "employee_id",
-        },
-        onUpdate: "CASCADE",
-        onDelete: "SET NULL", // If supervisor is deleted, set to null
-      },
-      company_name: {
-        type: DataTypes.STRING,
-        allowNull: false,
       },
       email: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
         validate: {
-          isEmail: true, // Validate email format
+          isEmail: true,
         },
       },
       password: {
@@ -58,15 +48,6 @@ module.exports = (sequelize, DataTypes) => {
       timestamps: true, // Adds createdAt and updatedAt fields automatically
     }
   );
-
-  User.associate = (models) => {
-    User.belongsTo(models.User, {
-      foreignKey: "reports_to",
-      targetKey: "employee_id",
-      onDelete: "SET NULL",
-      onUpdate: "CASCADE",
-    });
-  };
 
   return User;
 };
