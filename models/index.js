@@ -32,14 +32,31 @@ fs.readdirSync(__dirname)
   })
   .forEach((file) => {
     const model = require(path.join(__dirname, file));
+    try {
+      console.log(`Model loaded: `, {
+        fileName: file,
+        modelType: typeof model,
+        modelName: model.name || "unnamed",
+      });
 
-    // Check if the model is a function and call it
-    if (typeof model === 'function') {
-      db[model.name] = model(sequelize, Sequelize.DataTypes);
-    } else {
-      db[file] = model;
+      if (typeof model === "function") {
+        const initializedModel = model(sequelize, Sequelize.DataTypes);
+        console.log(`Initialized model name: ${initializedModel.name}`);
+        db[initializedModel.name] = initializedModel;
+      } else {
+        console.log(`Skipping non-function model in file: ${file}`);
+      }
+    } catch (error) {
+      console.error(`Error loading model ${file}:`, error);
     }
   });
+
+// Add this block to initialize associations
+Object.keys(db).forEach((modelName) => {
+  if (db[modelName].associate) {
+    db[modelName].associate(db);
+  }
+});
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
