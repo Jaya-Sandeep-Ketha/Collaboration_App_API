@@ -58,94 +58,6 @@ const decodeTokenAndGetCompanyCode = (token) => {
   }
 };
 
-// const getFeatureDetails = async (
-//   token,
-//   { feature_name, product_name, github_repo_name }
-// ) => {
-//   console.log("Enter getFeatureDetails");
-//   const { company_code } = decodeTokenAndGetCompanyCode(token);
-
-//   console.log("Decoded company code:", company_code);
-
-//   // Build dynamic query for Projects based on inputs
-//   const projectQuery = {
-//     where: { company_code },
-//     attributes: ["project_id", "project_name", "github_repo_name"],
-//   };
-
-//   if (product_name) {
-//     projectQuery.where.project_name = product_name;
-//     console.log("Filtering by product_name:", product_name);
-//   }
-
-//   if (github_repo_name) {
-//     projectQuery.where.github_repo_name = github_repo_name;
-//     console.log("Filtering by github_repo_name:", github_repo_name);
-//   }
-
-//   const projects = await Project.findAll(projectQuery);
-//   console.log("Projects found:", projects);
-
-//   if (!projects.length) {
-//     throw new Error("No projects found for the given filters.");
-//   }
-
-//   const projectIds = projects.map((project) => project.project_id);
-//   console.log("Filtered project IDs:", projectIds);
-
-//   // If only project details are required (no feature name provided)
-//   if (!feature_name) {
-//     console.log("No feature_name provided, returning projects.");
-//     return projects;
-//   }
-
-//   // Fetch features based on project IDs and feature name
-//   const features = await Feature.findAll({
-//     where: {
-//       project_id: projectIds,
-//       feature_name,
-//     },
-//     attributes: ["feature_id", "feature_name", "project_id", "emailId"],
-//   });
-
-//   console.log("Features found:", features);
-
-//   if (!features.length) {
-//     throw new Error("No features found for the given filters.");
-//   }
-
-//   // Fetch user details for the features
-//   const userIds = features.map((feature) => feature.emailId);
-//   console.log("User IDs from features:", userIds);
-
-//   const users = await User.findAll({
-//     where: { employee_id: userIds },
-//     attributes: [
-//       "employee_id",
-//       "employee_fname",
-//       "employee_lname",
-//       "email",
-//       "chat_name",
-//       "location",
-//       "title",
-//       "reports_to",
-//     ],
-//   });
-
-//   console.log("Users found:", users);
-
-//   // Merge feature and user data
-//   return features.map((feature) => {
-//     const user = users.find((u) => u.employee_id === feature.emailId);
-//     console.log("Matching user for feature:", feature.feature_id, user);
-
-//     return {
-//       ...feature.dataValues,
-//       user: user ? user.dataValues : null,
-//     };
-//   });
-// };
-
 const getFeatureDetails = async (
   token,
   { feature_name, product_name, github_repo_name }
@@ -154,6 +66,53 @@ const getFeatureDetails = async (
   const { company_code } = decodeTokenAndGetCompanyCode(token);
 
   console.log("Decoded company code:", company_code);
+
+  // If only feature_name is provided
+  if (feature_name) {
+    console.log("Searching by feature_name:", feature_name);
+
+    const features = await Feature.findAll({
+      where: {
+        feature_name,
+        company_code,
+      },
+      attributes: ["feature_id", "feature_name", "emailId"], // Ensure emailId is correctly fetched
+    });
+
+    console.log("Features found:", features);
+
+    if (!features.length) {
+      throw new Error("No features found for the given filters.");
+    }
+
+    const emailIds = features.map((feature) => feature.emailId); // Extract email IDs
+    console.log("Email IDs from features:", emailIds);
+
+    const users = await User.findAll({
+      where: { email: emailIds }, // Query using email instead of employee_id
+      attributes: [
+        "employee_id",
+        "employee_fname",
+        "employee_lname",
+        "email",
+        "chat_name",
+        "location",
+        "title",
+        "reports_to",
+      ],
+    });
+
+    console.log("Users found for features:", users);
+
+    return [
+      {
+        project_id: null,
+        project_name: null,
+        github_repo_name: null,
+        users: users.map((user) => user.dataValues),
+      },
+    ];
+  }
 
   // If only product_name or github_repo_name is provided
   if (product_name || github_repo_name) {
@@ -207,45 +166,6 @@ const getFeatureDetails = async (
         users: projectUsers,
       };
     });
-  }
-
-  // If only feature_name is provided
-  if (feature_name) {
-    console.log("Searching by feature_name:", feature_name);
-
-    const features = await Feature.findAll({
-      where: {
-        feature_name,
-        company_code,
-      },
-      attributes: ["feature_id", "feature_name", "emailId"],
-    });
-
-    console.log("Features found:", features);
-
-    if (!features.length) {
-      throw new Error("No features found for the given filters.");
-    }
-
-    const userIds = features.map((feature) => feature.emailId);
-
-    const users = await User.findAll({
-      where: { employee_id: userIds },
-      attributes: [
-        "employee_id",
-        "employee_fname",
-        "employee_lname",
-        "email",
-        "chat_name",
-        "location",
-        "title",
-        "reports_to",
-      ],
-    });
-
-    console.log("Users found for features:", users);
-
-    return users.map((user) => user.dataValues);
   }
 
   throw new Error("At least one filter parameter is required.");
