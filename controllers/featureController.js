@@ -1,26 +1,65 @@
-const { Feature, WorksOn, User } = require("../models");
+const jwt = require("jsonwebtoken");
+const featureService = require("../services/userService");
 
-exports.submitForm = async (req, res) => {
-  const { email, featureName, description, projectId } = req.body;
-
+exports.addFeature = async (req, res) => {
   try {
-    const user = await User.findOne({ where: { email } });
-    if (!user) throw new Error("User not found");
+    console.log("Received request to add feature...");
 
-    const feature = await Feature.create({
-      name: featureName,
-      description,
-      project_id: projectId,
+    const token = req.headers["authorization"]?.replace("Bearer ", "").trim();
+    console.log("Extracted token:", token);
+
+    if (!token) {
+      return res
+        .status(401)
+        .json({ message: "Access denied. No token provided." });
+    }
+
+    // Decode the token to extract user info
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("Decoded token:", decoded);
+
+    const { userId: emailId, company_code } = decoded;
+    console.log(
+      "Extracted from token - emailId:",
+      emailId,
+      "company_code:",
+      company_code
+    );
+
+    const { feature_name, project_id } = req.body;
+
+    if (!feature_name || !project_id) {
+      console.log("Missing required fields: feature_name or project_id");
+      return res
+        .status(400)
+        .json({ message: "Feature name and project ID are required." });
+    }
+
+    console.log(
+      "Feature details from request body - feature_name:",
+      feature_name,
+      "project_id:",
+      project_id
+    );
+
+    // Call the service to add the feature
+    const feature = await featureService.addFeature({
+      feature_name,
+      project_id,
+      emailId,
+      company_code,
     });
 
-    await WorksOn.create({
-      employee_id: user.employee_id,
-      feature_id: feature.id,
-    });
+    console.log("Feature successfully added:", feature);
 
-    res.status(200).json({ message: "Feature submitted successfully" });
+    res.status(201).json({
+      message: "Feature added successfully",
+      data: feature,
+    });
   } catch (error) {
-    console.error("Error submitting form:", error);
-    res.status(500).json({ message: "Failed to submit form" });
+    console.error("Error adding feature:", error);
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 };

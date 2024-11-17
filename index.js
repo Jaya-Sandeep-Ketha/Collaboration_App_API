@@ -54,11 +54,8 @@ const sequelize = new Sequelize(
     await db.User.sync({ force: true }); // Then sync Admin table
     console.log("User table synchronized.");
 
-    await db.Work.sync({ force: true }); // Then sync Admin table
-    console.log("Work table synchronized.");
-
-    await db.WorksOn.sync({ force: true }); // Then sync Admin table
-    console.log("Work table synchronized.");
+    await db.Feature.sync({ force: true }); // Then sync Admin table
+    console.log("Feature table synchronized.");
 
     console.log("Database synchronized.");
   } catch (err) {

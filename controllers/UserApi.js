@@ -1,10 +1,10 @@
-const { authenticateUser } = require("../services/userService");
+const { authorizeUser } = require("../services/userService");
 
 exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const { token, user } = await authenticateUser(email, password);
+    const { token, user } = await authorizeUser(email, password);
 
     res.status(200).json({
       message: "Login successful",

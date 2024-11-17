@@ -13,16 +13,14 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    company_id: {
-      type: DataTypes.INTEGER,
+    company_code: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    emailId: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
   });
-
-  Feature.associate = (models) => {
-    Feature.belongsTo(models.Project, { foreignKey: "project_id" });
-    Feature.belongsTo(models.Company, { foreignKey: "company_id" });
-  };
-
   return Feature;
 };

@@ -61,12 +61,6 @@ exports.parseCSVAndSave = async (fileUrl, company_code) => {
                 password: hashedPassword,
               });
 
-              // Populate Work table
-              await Work.create({
-                employee_id: user.employee_id,
-                project_id: project.project_id,
-              });
-
               // Send email with credentials
               await sendPasswordEmail(user.email, password);
               console.log(
