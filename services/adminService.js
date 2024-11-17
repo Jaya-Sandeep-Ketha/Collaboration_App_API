@@ -92,15 +92,7 @@ const generateUniqueProjectId = async () => {
 
 const generateUniqueEmployeeId = async () => {
   const maxEmployee = await User.findOne({
-    attributes: [
-      [
-        sequelize.fn(
-          "MAX",
-          sequelize.cast(sequelize.col("employee_id"), "UNSIGNED")
-        ),
-        "max_id",
-      ],
-    ],
+    attributes: [[sequelize.fn("MAX", sequelize.col("employee_id")), "max_id"]],
   });
 
   const maxId = maxEmployee?.dataValues?.max_id
