@@ -7,6 +7,6 @@ const featureController = require("../controllers/featureController");
 // POST route
 router.post("/login", loginUser);
 router.post("/projectdetails", getFeatureDetails);
-router.post("/submit", featureController.addFeature);
+router.post("/submit", featureController.addFeatures);
 
 module.exports = router;

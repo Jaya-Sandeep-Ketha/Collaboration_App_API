@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { Project, User, Feature } = require("../models");
+const { Project, User, Feature, sequelize } = require("../models");
 
 // User Authentication Service
 const authorizeUser = async (email, password) => {
@@ -184,18 +184,21 @@ const addFeature = async ({
     company_code,
   });
 
-  // Fetch project by project_id
-  const project = await Project.findOne({ where: { project_id } });
+  // Ensure project_id is treated as string
+  const project = await Project.findOne({
+    where: { project_id: project_id.toString() },
+  });
+
+  if (!project) {
+    throw new Error("Project not found");
+  }
+
   console.log(
     "Fetched project for project_id:",
     project_id,
     "Project:",
     project
   );
-
-  if (!project) {
-    throw new Error("Project not found");
-  }
 
   // Verify company_code consistency
   if (!company_code) {
@@ -205,8 +208,18 @@ const addFeature = async ({
 
   console.log("Final company_code used for feature creation:", company_code);
 
-  // Create a new feature
+  // Fetch max feature_id and increment for new feature
+  const maxFeatureIdResult = await Feature.findOne({
+    attributes: [[sequelize.fn("MAX", sequelize.col("feature_id")), "max_id"]],
+  });
+
+  const newFeatureId = (maxFeatureIdResult?.dataValues?.max_id || 0) + 1;
+
+  console.log("Generated new feature_id:", newFeatureId);
+
+  // Create the new feature
   const feature = await Feature.create({
+    feature_id: newFeatureId,
     feature_name,
     project_id,
     company_code,
@@ -215,10 +228,6 @@ const addFeature = async ({
 
   console.log("Feature created successfully:", feature);
   return feature;
-};
-
-module.exports = {
-  addFeature,
 };
 
 module.exports = {
