@@ -1,6 +1,6 @@
 const adminService = require("../services/adminService");
 const { authenticateAdmin } = require("../middlewares/authMiddleware");
-const { adminLogin } = require("../services/adminService");
+const { adminLogin, addUser } = require("../services/adminService");
 
 const registerAdmin = async (req, res) => {
   try {
@@ -61,4 +61,63 @@ const loginAdmin = async (req, res) => {
   }
 };
 
-module.exports = { registerAdmin, loginAdmin };
+const addUser_mail = async (req, res) => {
+  try {
+    const {
+      employee_fname,
+      employee_lname,
+      email,
+      chat_name,
+      location,
+      title,
+      reports_to,
+      password,
+      company_code,
+      project_name,
+      github_repo_name, // Ensure this is captured from the request
+    } = req.body;
+
+    if (
+      !employee_fname ||
+      !employee_lname ||
+      !email ||
+      !chat_name ||
+      !location ||
+      !title ||
+      !password ||
+      !company_code ||
+      !project_name ||
+      !github_repo_name // Validate this as well
+    ) {
+      return res
+        .status(400)
+        .json({ message: "All fields are required to add a user." });
+    }
+
+    const result = await adminService.addUser({
+      employee_fname,
+      employee_lname,
+      email,
+      chat_name,
+      location,
+      title,
+      reports_to,
+      password,
+      company_code,
+      project_name,
+      github_repo_name, // Pass this to the service
+    });
+
+    res.status(201).json({
+      message: "User added successfully",
+      data: result,
+    });
+  } catch (error) {
+    console.error("Error adding user:", error.message);
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
+  }
+};
+
+module.exports = { registerAdmin, loginAdmin, addUser_mail };

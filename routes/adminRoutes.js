@@ -1,5 +1,9 @@
 const express = require("express");
-const { registerAdmin, loginAdmin } = require("../controllers/adminController");
+const {
+  registerAdmin,
+  loginAdmin,
+  addUser_mail,
+} = require("../controllers/adminController");
 const upload = require("../middlewares/uploadMiddleware");
 const csvController = require("../controllers/csvController");
 const { authenticateAdmin } = require("../middlewares/authMiddleware");
@@ -16,5 +20,6 @@ router.post(
 );
 
 router.post("/login", loginAdmin);
+router.post("/add", authenticateAdmin, addUser_mail);
 
 module.exports = router;

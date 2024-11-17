@@ -1,4 +1,4 @@
-const { Admin, Company } = require("../models");
+const { Admin, Company, Project, sequelize, User } = require("../models");
 const jwt = require("jsonwebtoken");
 
 const generateCompanyCode = async (company_name) => {
@@ -79,4 +79,69 @@ const adminLogin = async (emailId, password) => {
   return { token, company_code: admin.company_code };
 };
 
-module.exports = { registerAdmin, adminLogin };
+const generateUniqueProjectId = async () => {
+  // Find the maximum project_id in the Project table
+  const maxProject = await Project.findOne({
+    attributes: [[sequelize.fn("MAX", sequelize.col("project_id")), "max_id"]],
+  });
+
+  // Increment the max ID by 1 or start from 1 if no records exist
+  return maxProject?.dataValues?.max_id ? maxProject.dataValues.max_id + 1 : 1;
+};
+
+const generateUniqueEmployeeId = async () => {
+  const maxEmployee = await User.findOne({
+    attributes: [[sequelize.fn("MAX", sequelize.col("employee_id")), "max_id"]],
+  });
+
+  return maxEmployee?.dataValues?.max_id
+    ? maxEmployee.dataValues.max_id + 1
+    : 1; // Start from 1 if no record exists
+};
+
+const addUser = async ({
+  employee_fname,
+  employee_lname,
+  email,
+  chat_name,
+  location,
+  title,
+  reports_to,
+  password,
+  company_code,
+  project_name,
+  github_repo_name,
+}) => {
+  const employee_id = await generateUniqueEmployeeId(); // Generate unique ID
+
+  let project = await Project.findOne({
+    where: { company_code, project_name },
+  });
+
+  if (!project) {
+    const project_id = await generateUniqueProjectId();
+    project = await Project.create({
+      project_id,
+      project_name,
+      company_code,
+      github_repo_name,
+    });
+  }
+
+  const user = await User.create({
+    employee_id, // Pass the generated ID
+    employee_fname,
+    employee_lname,
+    email,
+    chat_name,
+    location,
+    title,
+    reports_to,
+    password,
+    project_id: project.project_id,
+  });
+
+  return user;
+};
+
+module.exports = { registerAdmin, adminLogin, addUser };
