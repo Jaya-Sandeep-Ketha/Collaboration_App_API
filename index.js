@@ -9,9 +9,14 @@ const app = express();
 app.use(express.json());
 
 // Register routes
+app.use((req, res, next) => {
+  console.log(`Received request: ${req.method} ${req.url}`);
+  next();
+});
 app.use("/api/users", userRoute); // Example for user-related endpoints
 app.use("/api/admin", adminRoute); // Correctly register admin-related endpoints
 app.use("/api/csv", adminRoute);
+// app.use("/api/features", features);
 
 const sequelize = new Sequelize(
   process.env.DB_NAME,
@@ -50,6 +55,9 @@ const sequelize = new Sequelize(
     console.log("User table synchronized.");
 
     await db.Work.sync({ force: true }); // Then sync Admin table
+    console.log("Work table synchronized.");
+
+    await db.WorksOn.sync({ force: true }); // Then sync Admin table
     console.log("Work table synchronized.");
 
     console.log("Database synchronized.");

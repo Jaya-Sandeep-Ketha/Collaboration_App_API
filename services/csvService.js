@@ -1,7 +1,8 @@
 const csv = require("csv-parser");
 const { User, Project, Work } = require("../models");
 const axios = require("axios"); // To fetch CSV from S3
-const sendPasswordEmail = require("./emailService");
+const { sendPasswordEmail } = require("./emailService");
+const bcrypt = require("bcrypt");
 
 const generatePassword = () => {
   const chars =
@@ -42,6 +43,9 @@ exports.parseCSVAndSave = async (fileUrl, company_code) => {
               // Generate random password for the user
               const password = generatePassword();
 
+              // Hash the password
+              const hashedPassword = await bcrypt.hash(password, 10);
+
               // Save to Users table
               const user = await User.create({
                 employee_id: row.employee_id,
@@ -54,7 +58,7 @@ exports.parseCSVAndSave = async (fileUrl, company_code) => {
                 email: row.email,
                 company_code: company_code, // Use companyCode instead of companyName
                 project_id: project.project_id, // Optional: Linking to project if needed
-                password,
+                password: hashedPassword,
               });
 
               // Populate Work table

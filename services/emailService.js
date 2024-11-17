@@ -24,4 +24,17 @@ const sendPasswordEmail = async (recipient, password) => {
   }
 };
 
-module.exports = sendPasswordEmail;
+const sendFeatureFormEmail = async (email, formLink) => {
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Bi-Weekly Feature Update",
+    html: `<p>Please fill out the following form for the features you're working on:</p>
+             <a href="${formLink}">${formLink}</a>`,
+  };
+
+  await transporter.sendMail(mailOptions);
+  console.log(`Email sent to ${email}`);
+};
+
+module.exports = { sendPasswordEmail, sendFeatureFormEmail };

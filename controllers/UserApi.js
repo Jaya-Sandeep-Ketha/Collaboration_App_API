@@ -1,34 +1,24 @@
-const db = require("../models");
-const bcrypt = require("bcrypt");
+const { authenticateUser } = require("../services/userService");
 
-exports.UserLogin = async (req, res) => {
+exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ error: "Email or Password is missing" });
-  }
-
   try {
-    const user = await db.User.findOne({
-      where: { email: email },
-    });
-
-    if (!user) {
-      return res.status(401).json({ error: "Invalid email or password" });
-    }
-
-    const passwordMatch = await bcrypt.compare(password, user.password);
-
-    if (!passwordMatch) {
-      return res.status(401).json({ error: "Invalid email or password" });
-    }
+    const { token, user } = await authenticateUser(email, password);
 
     res.status(200).json({
-      status: "OK",
-      data: user,
+      message: "Login successful",
+      token,
+      user: {
+        id: user.employee_id,
+        name: `${user.employee_fname} ${user.employee_lname}`,
+        email: user.email,
+        title: user.title,
+        location: user.location,
+      },
     });
   } catch (error) {
-    console.error("Error fetching user:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Login error:", error.message);
+    res.status(401).json({ message: error.message });
   }
 };

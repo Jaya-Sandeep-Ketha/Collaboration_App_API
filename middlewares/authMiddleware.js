@@ -32,4 +32,32 @@ const authenticateAdmin = (req, res, next) => {
   }
 };
 
-module.exports = authenticateAdmin;
+const authenticateUser = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+
+  // Log the received token
+  console.log("Authorization header:", authHeader);
+
+  if (!authHeader) {
+    console.log("No token provided in the request.");
+    return res
+      .status(401)
+      .json({ message: "Access denied. No token provided." });
+  }
+
+  try {
+    const token = authHeader.replace("Bearer ", "").trim();
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Log the decoded token payload
+    console.log("Decoded token:", decoded);
+
+    req.user = decoded; // Attach user details (id, email, company_code) to the request
+    next();
+  } catch (err) {
+    console.error("Token verification failed:", err.message);
+    return res.status(403).json({ message: "Invalid token." });
+  }
+};
+
+module.exports = { authenticateAdmin, authenticateUser };
