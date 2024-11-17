@@ -24,38 +24,36 @@ const sendPasswordEmail = async (recipient, password) => {
   }
 };
 
-const sendFeatureFormEmail = async (email, formLink, loginLink) => {
+const sendFeatureFormEmail = async (email, formLink) => {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
     subject: "Bi-Weekly Feature Update",
-    html: `
-        <p>Hello,</p>
-        <p>Before proceeding to fill out the feature update form, you must log in to your account:</p>
-        <a href="${loginLink}">Login Here</a>
-        <p>Once logged in, please complete the form using the link below:</p>
-        <a href="${formLink}">Update Feature Form</a>
-        <p><strong>Note:</strong> Logging in is mandatory before accessing the form.</p>
-        <p>Thank you!</p>
-      `,
+    html: `<p>Please fill out the following form for the features you're working on:</p>
+             <a href="${formLink}">${formLink}</a>`,
   };
 
   await transporter.sendMail(mailOptions);
   console.log(`Email sent to ${email}`);
 };
 
-const sendOnboardingEmail = async (recipientEmail, onboardingFormLink) => {
+const sendOnboardingEmail = async (
+  recipientEmail,
+  onboardingFormLink,
+  loginLink
+) => {
   const mailOptions = {
     from: `"Platform Onboarding" <${process.env.EMAIL_USER}>`,
     to: recipientEmail,
     subject: "Complete Your Onboarding",
     html: `
-        <p>Dear User,</p>
-        <p>Welcome to the platform! To complete your onboarding, please fill out the onboarding form by clicking the link below:</p>
-        <a href="${onboardingFormLink}" target="_blank">Onboarding Form</a>
-        <p>Once completed, you will be added to the platform.</p>
-        <p>Thank you,</p>
-        <p>The Platform Team</p>
+       <p>Hello,</p>
+        <p>Before proceeding to the onboarding form, you must log in:</p>
+        <a href="${loginLink}">Login Here</a>
+        <p>After logging in, please complete the onboarding form using the link below:</p>
+        <a href="${onboardingFormLink}">Onboarding Form</a>
+        <p><strong>Note:</strong> Logging in is mandatory before accessing the form.</p>
+        <p>Thank you!</p>
       `,
   };
 
