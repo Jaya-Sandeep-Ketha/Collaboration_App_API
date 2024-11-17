@@ -132,8 +132,9 @@ const sendOnboardingRequest = async (req, res) => {
     process.env.ONBOARDING_FORM_URL
   }?email=${encodeURIComponent(email)}`; // Replace with actual form URL
 
+  const loginLink = process.env.LOGIN_URL;
   try {
-    await sendOnboardingEmail(email, onboardingFormLink);
+    await sendOnboardingEmail(email, onboardingFormLink, loginLink);
     res.status(200).json({ message: "Onboarding email sent successfully." });
   } catch (error) {
     console.error("Error sending onboarding request:", error.message);

@@ -24,13 +24,20 @@ const sendPasswordEmail = async (recipient, password) => {
   }
 };
 
-const sendFeatureFormEmail = async (email, formLink) => {
+const sendFeatureFormEmail = async (email, formLink, loginLink) => {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
     subject: "Bi-Weekly Feature Update",
-    html: `<p>Please fill out the following form for the features you're working on:</p>
-             <a href="${formLink}">${formLink}</a>`,
+    html: `
+        <p>Hello,</p>
+        <p>Before proceeding to fill out the feature update form, you must log in to your account:</p>
+        <a href="${loginLink}">Login Here</a>
+        <p>Once logged in, please complete the form using the link below:</p>
+        <a href="${formLink}">Update Feature Form</a>
+        <p><strong>Note:</strong> Logging in is mandatory before accessing the form.</p>
+        <p>Thank you!</p>
+      `,
   };
 
   await transporter.sendMail(mailOptions);
