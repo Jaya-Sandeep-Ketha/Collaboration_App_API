@@ -36,32 +36,32 @@ const sequelize = new Sequelize(
 );
 
 // Test connection and sync database
-(async () => {
-  try {
-    await sequelize.authenticate();
-    console.log("Connected to AWS RDS successfully.");
+// (async () => {
+//   try {
+//     await sequelize.authenticate();
+//     console.log("Connected to AWS RDS successfully.");
 
-    // Ensure proper sync order
-    await db.Company.sync({ force: true }); // Sync Company table first
-    console.log("Company table synchronized.");
+//     // Ensure proper sync order
+//     await db.Company.sync({ force: true }); // Sync Company table first
+//     console.log("Company table synchronized.");
 
-    await db.Admin.sync({ force: true }); // Then sync Admin table
-    console.log("Admin table synchronized.");
+//     await db.Admin.sync({ force: true }); // Then sync Admin table
+//     console.log("Admin table synchronized.");
 
-    await db.Project.sync({ force: true }); // Then sync Admin table
-    console.log("Project table synchronized.");
+//     await db.Project.sync({ force: true }); // Then sync Admin table
+//     console.log("Project table synchronized.");
 
-    await db.User.sync({ force: true }); // Then sync Admin table
-    console.log("User table synchronized.");
+//     await db.User.sync({ force: true }); // Then sync Admin table
+//     console.log("User table synchronized.");
 
-    await db.Feature.sync({ force: true }); // Then sync Admin table
-    console.log("Feature table synchronized.");
+//     await db.Feature.sync({ force: true }); // Then sync Admin table
+//     console.log("Feature table synchronized.");
 
-    console.log("Database synchronized.");
-  } catch (err) {
-    console.error("Unable to connect to the database or sync tables:", err);
-  }
-})();
+//     console.log("Database synchronized.");
+//   } catch (err) {
+//     console.error("Unable to connect to the database or sync tables:", err);
+//   }
+// })();
 
 // Health check endpoint
 app.get("/health", async (req, res) => {
