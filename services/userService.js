@@ -120,7 +120,16 @@ const getFeatureDetails = async (
 
   const users = await User.findAll({
     where: { employee_id: userIds },
-    attributes: ["employee_id", "employee_fname", "employee_lname", "email"],
+    attributes: [
+      "employee_id",
+      "employee_fname",
+      "employee_lname",
+      "email",
+      "chat_name",
+      "location",
+      "title",
+      "reports_to",
+    ],
   });
 
   console.log("Users found:", users);
