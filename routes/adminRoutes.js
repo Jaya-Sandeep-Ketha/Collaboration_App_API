@@ -3,6 +3,7 @@ const {
   registerAdmin,
   loginAdmin,
   addUser_mail,
+  sendOnboardingRequest,
 } = require("../controllers/adminController");
 const upload = require("../middlewares/uploadMiddleware");
 const csvController = require("../controllers/csvController");
@@ -21,5 +22,6 @@ router.post(
 
 router.post("/login", loginAdmin);
 router.post("/add", authenticateAdmin, addUser_mail);
+router.post("/send-onboarding-email", sendOnboardingRequest);
 
 module.exports = router;

@@ -37,4 +37,32 @@ const sendFeatureFormEmail = async (email, formLink) => {
   console.log(`Email sent to ${email}`);
 };
 
-module.exports = { sendPasswordEmail, sendFeatureFormEmail };
+const sendOnboardingEmail = async (recipientEmail, onboardingFormLink) => {
+  const mailOptions = {
+    from: `"Platform Onboarding" <${process.env.EMAIL_USER}>`,
+    to: recipientEmail,
+    subject: "Complete Your Onboarding",
+    html: `
+        <p>Dear User,</p>
+        <p>Welcome to the platform! To complete your onboarding, please fill out the onboarding form by clicking the link below:</p>
+        <a href="${onboardingFormLink}" target="_blank">Onboarding Form</a>
+        <p>Once completed, you will be added to the platform.</p>
+        <p>Thank you,</p>
+        <p>The Platform Team</p>
+      `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Onboarding email sent to ${recipientEmail}`);
+  } catch (error) {
+    console.error("Error sending onboarding email:", error.message);
+    throw new Error("Failed to send onboarding email.");
+  }
+};
+
+module.exports = {
+  sendPasswordEmail,
+  sendFeatureFormEmail,
+  sendOnboardingEmail,
+};

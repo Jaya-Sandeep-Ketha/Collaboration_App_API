@@ -1,6 +1,7 @@
 const adminService = require("../services/adminService");
 const { authenticateAdmin } = require("../middlewares/authMiddleware");
 const { adminLogin, addUser } = require("../services/adminService");
+const { sendOnboardingEmail } = require("../services/emailService");
 
 const registerAdmin = async (req, res) => {
   try {
@@ -120,4 +121,31 @@ const addUser_mail = async (req, res) => {
   }
 };
 
-module.exports = { registerAdmin, loginAdmin, addUser_mail };
+const sendOnboardingRequest = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: "Email is required." });
+  }
+
+  const onboardingFormLink = `${
+    process.env.ONBOARDING_FORM_URL
+  }?email=${encodeURIComponent(email)}`; // Replace with actual form URL
+
+  try {
+    await sendOnboardingEmail(email, onboardingFormLink);
+    res.status(200).json({ message: "Onboarding email sent successfully." });
+  } catch (error) {
+    console.error("Error sending onboarding request:", error.message);
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
+  }
+};
+
+module.exports = {
+  registerAdmin,
+  loginAdmin,
+  addUser_mail,
+  sendOnboardingRequest,
+};

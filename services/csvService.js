@@ -32,13 +32,26 @@ exports.parseCSVAndSave = async (fileUrl, company_code) => {
           // Process each row sequentially to avoid race conditions
           for (const row of rows) {
             try {
-              // Save to Projects table
-              const project = await Project.create({
-                project_id: row.Project_Id,
-                project_name: row.project_name,
-                github_repo_name: row.github_repo_name,
-                company_code,
+              // Check if the project_id already exists in the Projects table
+              let project = await Project.findOne({
+                where: { project_id: row.Project_Id },
               });
+
+              if (!project) {
+                console.log(
+                  `Project with ID ${row.Project_Id} not found. Creating new project...`
+                );
+                project = await Project.create({
+                  project_id: row.Project_Id,
+                  project_name: row.project_name,
+                  github_repo_name: row.github_repo_name,
+                  company_code,
+                });
+              } else {
+                console.log(
+                  `Project with ID ${row.Project_Id} already exists.`
+                );
+              }
 
               // Generate random password for the user
               const password = generatePassword();
@@ -57,7 +70,7 @@ exports.parseCSVAndSave = async (fileUrl, company_code) => {
                 reports_to: row.reports_to,
                 email: row.email,
                 company_code: company_code, // Use companyCode instead of companyName
-                project_id: project.project_id, // Optional: Linking to project if needed
+                project_id: project.project_id, // Link to the existing or newly created project
                 password: hashedPassword,
               });
 
