@@ -48,11 +48,8 @@ const sendOnboardingEmail = async (
     subject: "Complete Your Onboarding",
     html: `
        <p>Hello,</p>
-        <p>Before proceeding to the onboarding form, you must log in:</p>
-        <a href="${loginLink}">Login Here</a>
-        <p>After logging in, please complete the onboarding form using the link below:</p>
+        <p>Please complete the onboarding form using the link below:</p>
         <a href="${onboardingFormLink}">Onboarding Form</a>
-        <p><strong>Note:</strong> Logging in is mandatory before accessing the form.</p>
         <p>Thank you!</p>
       `,
   };

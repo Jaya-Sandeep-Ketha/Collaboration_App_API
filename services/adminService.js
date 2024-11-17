@@ -1,5 +1,6 @@
 const { Admin, Company, Project, sequelize, User } = require("../models");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 const generateCompanyCode = async (company_name) => {
   const sanitize = (str) => str.replace(/\s+/g, "").toUpperCase(); // Remove spaces and convert to uppercase
@@ -91,12 +92,22 @@ const generateUniqueProjectId = async () => {
 
 const generateUniqueEmployeeId = async () => {
   const maxEmployee = await User.findOne({
-    attributes: [[sequelize.fn("MAX", sequelize.col("employee_id")), "max_id"]],
+    attributes: [
+      [
+        sequelize.fn(
+          "MAX",
+          sequelize.cast(sequelize.col("employee_id"), "UNSIGNED")
+        ),
+        "max_id",
+      ],
+    ],
   });
 
-  return maxEmployee?.dataValues?.max_id
-    ? maxEmployee.dataValues.max_id + 1
-    : 1; // Start from 1 if no record exists
+  const maxId = maxEmployee?.dataValues?.max_id
+    ? parseInt(maxEmployee.dataValues.max_id, 10)
+    : 0; // Start from 0 if no record exists
+
+  return maxId + 1;
 };
 
 const addUser = async ({
@@ -113,6 +124,7 @@ const addUser = async ({
   github_repo_name,
 }) => {
   const employee_id = await generateUniqueEmployeeId(); // Generate unique ID
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   let project = await Project.findOne({
     where: { company_code, project_name },
@@ -137,7 +149,7 @@ const addUser = async ({
     location,
     title,
     reports_to,
-    password,
+    password: hashedPassword,
     project_id: project.project_id,
   });
 
