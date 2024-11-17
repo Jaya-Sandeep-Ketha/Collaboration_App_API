@@ -1,9 +1,9 @@
 const { Admin, Company } = require("../models");
 const jwt = require("jsonwebtoken");
 
-const generateCompanyCode = async (company_name, location) => {
-  const baseCode =
-    company_name.substring(0, 6).toUpperCase() + location.toUpperCase();
+const generateCompanyCode = async (company_name) => {
+  const sanitize = (str) => str.replace(/\s+/g, "").toUpperCase(); // Remove spaces and convert to uppercase
+  const baseCode = sanitize(company_name).substring(0, 6); // Use only company_name for base code
   let uniqueCode = baseCode;
   let counter = 1;
 
