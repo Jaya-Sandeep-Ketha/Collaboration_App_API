@@ -20,3 +20,14 @@ Video link description
 https://youtu.be/x4tWDi3J424
 
 
+## Test credentials
+### User
+email - janakiramsharma18@gmail.com
+password - PYIrGhRe
+
+### Admin
+email - sreyasadasivapetkar41@gmail.com
+password - 123456
+
+
+
